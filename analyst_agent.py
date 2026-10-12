@@ -63,7 +63,7 @@ def run_analyst(brief_text):
         print(f"Analyst agent: attempt {attempt}/3 ...")
 
         response = client.chat(
-            model="qwen3:4b",
+            model="qwen3:8b",
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user", "content": brief_text},

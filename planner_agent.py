@@ -59,7 +59,7 @@ def run_planner(requirement):
         print(f"Planner agent: attempt {attempt}/3 ...")
 
         response = chat(
-            model="qwen3:4b",
+            model="qwen3:8b",
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user", "content": json.dumps(requirement)}

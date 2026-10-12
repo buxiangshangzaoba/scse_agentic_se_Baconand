@@ -16,13 +16,13 @@ def main():
     Do NOT output JSON, do NOT use markdown code blocks. Output only plain English text.
     """
 
-    print("Asking qwen3:4b ... (first model load may take 1-3 minutes, please wait)")
+    print("Asking qwen3:8b ... (first model load may take 1-3 minutes, please wait)")
 
     # stream=True: print tokens as they are generated, so the script never looks frozen.
     # think=False: disable Qwen3's internal reasoning trace and answer directly.
     collected = []
     for chunk in client.chat(
-        model="qwen3:4b",
+        model="qwen3:8b",
         messages=[
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": brief_text},

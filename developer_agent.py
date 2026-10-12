@@ -41,7 +41,7 @@ def run_developer(plan):
         print(f"Developer agent: attempt {attempt}/3 ...")
 
         response = chat(
-            model="qwen3:4b",
+            model="qwen3:8b",
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user", "content": json.dumps(plan)}
