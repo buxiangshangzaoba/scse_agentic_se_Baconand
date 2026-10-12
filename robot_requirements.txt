@@ -1,0 +1,16 @@
+1. The robot must determine the direction to move based on the availability of unblocked paths and the location of its goal.  
+2. If the goal is directly ahead and the path in front is unblocked, the robot must move forward.  
+3. If the goal is to the left and the path to the left is unblocked, the robot must move left.  
+4. If the goal is to the right and the path to the right is unblocked, the robot must move right.  
+5. If the goal is not directly in front, left, or right, the robot must still prioritize moving toward the direction where the goal is located, provided the path is unblocked.  
+6. The robot must not move into any direction that is blocked.  
+7. If all directions are blocked, the robot must stop and remain stationary.  
+8. The robot must continuously re-evaluate its path based on the latest input about blocked paths and goal location.  
+9. The robot must not assume any information about the environment beyond what is explicitly provided.  
+10. The robot must not move unless it is certain that the direction is unblocked and leads toward its goal.  
+
+Allowed robot actions:  
+- Move forward  
+- Move left  
+- Move right  
+- Stop

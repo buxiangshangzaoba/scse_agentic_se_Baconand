@@ -1,0 +1,12 @@
+1. The robot must determine the direction of the goal (front, left, or right) relative to its current position.  
+2. The robot must prioritize moving toward the goal direction if it is unblocked.  
+3. If the goal direction is blocked, the robot must check other directions in the order of front, left, and right to find a safe path.  
+4. The robot must never move into a blocked direction.  
+5. If no safe directions are available, the robot must stop and remain stationary.  
+6. The robot must continuously re-evaluate its surroundings and update its movement decisions based on real-time input.  
+
+Allowed robot actions:  
+- Move forward (toward the front direction)  
+- Move left (toward the left direction)  
+- Move right (toward the right direction)  
+- Stop (remain stationary)

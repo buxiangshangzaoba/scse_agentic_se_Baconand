@@ -1,0 +1,9 @@
+{
+  "strategy": "Follow the path to the goal while avoiding obstacles",
+  "decisions": [
+    "FORWARD",
+    "LEFT",
+    "STOP"
+  ],
+  "stop_condition": "reached the goal location"
+}

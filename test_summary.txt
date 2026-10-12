@@ -1,0 +1,13 @@
+Level 1 Agent Pipeline Smoke Tests.
+For test_analyst.py, when running the local qwen3:4b model, it failed to follow instructions and output valid JSON, causing a ValueError. Following page 10 requirements, we identified the issue as output truncation and format instability of the local small model. To avoid blocking the pipeline, we manually corrected and created a standard requirements.json as a test stub.
+For test_planner.py, it ran successfully and generated artifacts/plan.json, verifying the requirements can be successfully converted into a plan.
+For test_developer.py, it ran successfully and generated artifacts/navigation_logic.py, ensuring the decide_next_move(state) function was included.
+
+Level 2 Behavioral Testing.
+For test_generated_navigation_logic.py, we used 6 test cases covering all known states including goal ahead, left, right, and all blocked.
+In the initially generated navigation_logic.py, our tests immediately found a logic bug where the code directly returned STOP when the goal direction was blocked, without looking for other available paths. This proved the completeness of our test cases.
+
+Level 3 Bug Introduction and Detection.
+We intentionally changed one return "LEFT" to return "RIGHT" in navigation_logic.py.
+After running the tests, the test cases immediately caught this bug, showing a red FAIL.
+We then removed the bug and ran the tests again, all test cases passed with OK.
