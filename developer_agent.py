@@ -1,5 +1,66 @@
+## The logic is fairly similar to the Analyst and Planner agents
+import json
+from ollama import chat
 
-## Keep the original code, but update it as follows:
-## Create a new function like run_developer_revision()
-# This function will receive the original navigation code, the review notes, the benchmark report, the requirements and the plan. 
-# Based on all of the above, this function will ask the LLM to generate a new navigation logic and then save that as a new file
+## System prompt for the Developer Agent
+SYSTEM_PROMPT = """
+You are a developer agent for a mobile robot navigation system.
+You will receive a navigation plan from the Planner Agent.
+Your job is to write Python code that implements this plan.
+
+Rules:
+- The output must be valid Python code only. No markdown, no explanations.
+- The code must contain a function called decide_next_move(state).
+- The function must return one of: "FORWARD", "LEFT", "RIGHT", "STOP".
+- The input 'state' is a dictionary with boolean keys: "goal_ahead", "goal_on_left", "goal_on_right", "front_blocked", "left_blocked", "right_blocked".
+- The code must handle blocked directions and goal direction.
+- The code must never move into a blocked direction.
+- If no safe direction is available, the robot must stop.
+
+Output ONLY Python code.
+"""
+
+def validate_code(code_text):
+    if not isinstance(code_text, str):
+        return False
+
+    if "def decide_next_move" not in code_text:
+        return False
+
+    try:
+        compile(code_text, "<generated>", "exec")
+    except SyntaxError:
+        return False
+
+    return True
+
+## Function to run the Developer Agent
+def run_developer(plan):
+    last_error = None
+    for attempt in range(1, 4):
+        print(f"Developer agent: attempt {attempt}/3 ...")
+
+        response = chat(
+            model="qwen3:4b",
+            messages=[
+                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "user", "content": json.dumps(plan)}
+            ]
+        )
+
+        raw_text = response.message.content.strip()
+
+        if raw_text.startswith("```"):
+            raw_text = raw_text.strip("`")
+            if raw_text.lower().startswith("python"):
+                raw_text = raw_text[6:]
+            raw_text = raw_text.strip()
+
+        if not validate_code(raw_text):
+            last_error = ValueError("Generated code failed validation")
+            print("  -> validation failed, retrying ...")
+            continue
+
+        return raw_text
+
+    raise ValueError(f"Developer output failed after retries. Last error: {last_error}")
