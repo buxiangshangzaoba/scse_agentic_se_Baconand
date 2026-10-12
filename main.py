@@ -1,5 +1,6 @@
 import json
 import os
+import shutil
 import subprocess
 import sys
 import time
@@ -9,7 +10,7 @@ from datetime import datetime
 ## Import all the necessary functions from other modules.
 from analyst_agent import run_analyst
 from planner_agent import run_planner
-from developer_agent import run_developer
+from developer_agent import run_developer, run_developer_revision
 from test_agent import run_test_agent
 from runner import run_simulation
 from reviewer_agent import run_reviewer
@@ -46,6 +47,11 @@ def save_text(path, text):
         f.write(text)
 
 
+def load_json(path):
+    with open(path, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
 # ---------- Main pipeline ----------
 def main():
     ensure_dirs()
@@ -78,7 +84,6 @@ def main():
     log("Running Developer Agent ...")
     nav_code = run_developer(plan)
     save_text("generated/navigation_logic.py", nav_code)
-    # Also mirror into artifacts for reference
     save_text("artifacts/navigation_logic.py", nav_code)
     log("Developer Agent created generated/navigation_logic.py")
 
@@ -114,9 +119,7 @@ def main():
         raise RuntimeError("IR-SIM Benchmark failed")
     log("IR-SIM Benchmark created artifacts/irsim_benchmark_report.json")
 
-    # Load benchmark report for the next step
-    with open("artifacts/irsim_benchmark_report.json", "r", encoding="utf-8") as f:
-        bench_report = json.load(f)
+    bench_report = load_json("artifacts/irsim_benchmark_report.json")
     log(f"Benchmark report loaded: success_rate={bench_report['success_rate']}, "
         f"efficiency_rate={bench_report['efficiency_rate']}")
 
@@ -126,6 +129,56 @@ def main():
     save_json("artifacts/benchmark_review.json", bench_review)
     log(f"Benchmark Reviewer created artifacts/benchmark_review.json "
         f"(needs_revision={bench_review['needs_revision']})")
+
+    # 10. Developer Revision (only if needed)
+    needs_revision = review.get("needs_revision", False) or \
+                     bench_review.get("needs_revision", False)
+
+    if needs_revision:
+        log("Revision needed — running Developer Revision ...")
+        revised_code = run_developer_revision(
+            original_code=nav_code,
+            review_notes=review,
+            benchmark_report=bench_report,
+            requirements=requirements,
+            plan=plan,
+        )
+        save_text("generated/navigation_logic_v2.py", revised_code)
+        save_text("artifacts/navigation_logic_v2.py", revised_code)
+        log("Developer Revision created generated/navigation_logic_v2.py")
+
+        # Swap in the revised version and re-run test + simulation + benchmark
+        shutil.copy("generated/navigation_logic.py",
+                    "generated/navigation_logic_v1_backup.py")
+        shutil.copy("generated/navigation_logic_v2.py",
+                    "generated/navigation_logic.py")
+        log("Swapped in revised navigation_logic.py")
+
+        # Re-run simulation
+        log("Re-running Simulation Runner on revised logic ...")
+        sim_report_v2 = run_simulation()
+        save_json("artifacts/simulation_report_v2.json", sim_report_v2)
+        log(f"Simulation (revised) created artifacts/simulation_report_v2.json "
+            f"(passed={sim_report_v2['passed']}/{sim_report_v2['total_scenarios']})")
+
+        # Re-run IR-SIM benchmark
+        log("Re-running IR-SIM Benchmark on revised logic ...")
+        result = subprocess.run(
+            [sys.executable, "benchmark_irsim.py"],
+            capture_output=True, text=True, timeout=1800,
+        )
+        if result.returncode != 0:
+            log(f"Re-run IR-SIM Benchmark FAILED: {result.stderr[-500:]}")
+            raise RuntimeError("Re-run IR-SIM Benchmark failed")
+        log("Re-run IR-SIM Benchmark created artifacts/irsim_benchmark_report.json")
+
+        bench_report_v2 = load_json("artifacts/irsim_benchmark_report.json")
+        bench_review_v2 = run_reviewer_benchmark(bench_report_v2)
+        save_json("artifacts/benchmark_review_v2.json", bench_review_v2)
+        log(f"Benchmark Reviewer (revised) created artifacts/benchmark_review_v2.json "
+            f"(needs_revision={bench_review_v2['needs_revision']})")
+    else:
+        log("No revision needed — skipping Developer Revision step.")
 
     log("=== Pipeline finished successfully ===")
 

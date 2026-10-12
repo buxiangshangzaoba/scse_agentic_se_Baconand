@@ -1,9 +1,9 @@
 {
-  "strategy": "Use potential field navigation to avoid obstacles and move toward the goal",
+  "strategy": "Use sensor data to detect obstacles and adjust path in real-time while moving toward the goal.",
   "decisions": [
     "FORWARD",
     "LEFT",
     "RIGHT"
   ],
-  "stop_condition": "Reach the goal location or a safe stop point"
+  "stop_condition": "Reaches the goal location or detects an obstacle requiring a safe stop."
 }
