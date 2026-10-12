@@ -2,7 +2,6 @@ import json
 from ollama import chat
 
 
-## System prompt for the Test Agent
 SYSTEM_PROMPT = """
 You are a test agent for a mobile robot navigation system.
 You will receive the requirements from the Analyst Agent and the plan from the Planner Agent.
@@ -46,7 +45,6 @@ def validate_test_code(code_text):
     if "```" in code_text:
         return False
 
-    # Required keywords
     required_keywords = [
         "import pytest",
         "from generated.navigation_logic import decide_next_move",
@@ -57,7 +55,6 @@ def validate_test_code(code_text):
         if kw not in code_text:
             return False
 
-    # Must compile
     try:
         compile(code_text, "<generated_test>", "exec")
     except SyntaxError:
@@ -91,7 +88,6 @@ def run_test_agent(requirements, plan):
 
         raw_text = response.message.content.strip()
 
-        # Strip markdown fences if present
         if raw_text.startswith("```"):
             raw_text = raw_text.strip("`")
             if raw_text.lower().startswith("python"):

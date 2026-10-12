@@ -2,7 +2,6 @@ import json
 from ollama import chat
 
 
-## System prompt for the Reviewer Agent
 SYSTEM_PROMPT = """
 You are a reviewer agent for a mobile robot navigation system.
 You will receive a simulation report from the Simulation Runner.
@@ -69,7 +68,6 @@ def run_reviewer(simulation_report):
 
         raw_text = response.message.content.strip()
 
-        # Strip markdown fences if present
         if raw_text.startswith("```"):
             raw_text = raw_text.strip("`")
             if raw_text.lower().startswith("json"):
@@ -93,7 +91,6 @@ def run_reviewer(simulation_report):
     raise ValueError(f"Reviewer output failed after retries. Last error: {last_error}")
 
 
-## If run directly, load the simulation report and review it.
 if __name__ == "__main__":
     import os
     os.makedirs("artifacts", exist_ok=True)

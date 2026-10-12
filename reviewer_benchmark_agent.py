@@ -2,7 +2,6 @@ import json
 from ollama import chat
 
 
-## System prompt for the Reviewer Agent (Benchmark)
 SYSTEM_PROMPT = """
 You are a benchmark reviewer agent for a mobile robot navigation system.
 You will receive an IR-SIM benchmark report and a deterministic review.
@@ -63,22 +62,18 @@ def build_deterministic_review(benchmark_report):
     efficiency_rate = benchmark_report.get("efficiency_rate", 0.0)
     inefficient_success = benchmark_report.get("inefficient_success_worlds", 0)
 
-    # Safety: any world where collision_or_done is True but goal not reached
     unsafe_worlds = [
         r for r in results
         if r.get("collision_or_done") and not r.get("reached_goal")
     ]
     safety_passed = len(unsafe_worlds) == 0
 
-    # Goal completion: success rate must be 1.0 (all goals reached)
     goal_completion_passed = (success_rate >= 1.0 and total_worlds > 0)
 
-    # Efficiency: no inefficient successes and efficiency rate is 1.0
     efficiency_passed = (inefficient_success == 0 and efficiency_rate >= 1.0)
 
     needs_revision = not (safety_passed and goal_completion_passed and efficiency_passed)
 
-    # Compose deterministic issue text
     issues = []
     if not safety_passed:
         issues.append("Unsafe benchmark behavior detected")
@@ -138,7 +133,6 @@ def run_reviewer_benchmark(benchmark_report):
             print(f"  -> JSON parse failed: {e}")
             continue
 
-        # Force booleans to match deterministic review
         for key in ["safety_passed", "goal_completion_passed",
                     "efficiency_passed", "needs_revision"]:
             parsed[key] = deterministic[key]
@@ -152,12 +146,10 @@ def run_reviewer_benchmark(benchmark_report):
 
         return parsed
 
-    # If LLM fails, fall back to deterministic review
     print("  -> falling back to deterministic review")
     return deterministic
 
 
-## If run directly, load the benchmark report and review it.
 if __name__ == "__main__":
     import os
     os.makedirs("artifacts", exist_ok=True)

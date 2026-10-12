@@ -1,8 +1,7 @@
-## The logic is fairly similar to the Analyst and Planner agents
+
 import json
 from ollama import chat
 
-## System prompt for the Developer Agent
 SYSTEM_PROMPT = """
 You are a developer agent for a mobile robot navigation system.
 You will receive a navigation plan from the Planner Agent.
@@ -34,7 +33,6 @@ def validate_code(code_text):
 
     return True
 
-## Function to run the Developer Agent
 def run_developer(plan):
     last_error = None
     for attempt in range(1, 4):
@@ -124,7 +122,6 @@ def run_developer_revision(original_code, review_notes, benchmark_report, requir
 
         raw_text = response.message.content.strip()
 
-        # Strip markdown fences if present
         if raw_text.startswith("```"):
             raw_text = raw_text.strip("`")
             if raw_text.lower().startswith("python"):

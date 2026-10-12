@@ -115,7 +115,6 @@ def run_simulation():
     return report
 
 
-## If run directly, execute the simulation and save the report.
 if __name__ == "__main__":
     os.makedirs("artifacts", exist_ok=True)
 

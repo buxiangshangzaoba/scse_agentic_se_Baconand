@@ -5,7 +5,6 @@ import os
 import sys
 
 
-## Load the world files for the IR-SIM benchmark.
 WORLD_FILES = [
     "irsim_worlds/world_easy.yaml",
     "irsim_worlds/world_medium.yaml",
@@ -43,16 +42,13 @@ def run_benchmark_for_world(world_file):
         print(result.stderr[-1000:])
         return None
 
-    # Extract the dict that follows "IR-SIM report:"
     marker = "IR-SIM report:"
     idx = output.find(marker)
     if idx == -1:
         print("  -> could not find 'IR-SIM report:' marker in output")
         return None
 
-    # Take everything after the marker, and find the first complete dict
     tail = output[idx + len(marker):].strip()
-    # The report dict starts at the first "{" and ends at the matching "}"
     start = tail.find("{")
     if start == -1:
         return None
