@@ -1,9 +1,9 @@
 {
-  "strategy": "Follow the path to the goal while avoiding obstacles",
+  "strategy": "Use potential field navigation to avoid obstacles and move toward the goal",
   "decisions": [
     "FORWARD",
     "LEFT",
-    "STOP"
+    "RIGHT"
   ],
-  "stop_condition": "reached the goal location"
+  "stop_condition": "Reach the goal location or a safe stop point"
 }
